@@ -1,0 +1,7 @@
+{
+  "assets":    [{ "id":1, "ip":"scanme.nmap.org", "name":"scanme" }],
+  "vulnerabilities": [
+    { "id":1, "asset_id":1, "name":"Port 22 open", "severity":"high" }
+  ],
+  "risks":     [{ "asset_id":1, "level":"danger" }]
+}

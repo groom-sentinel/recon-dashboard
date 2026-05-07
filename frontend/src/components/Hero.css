@@ -1,0 +1,58 @@
+.hero {
+  @apply relative z-10 flex flex-col items-start justify-start pt-[20px] pl-[90px] pr-[90px] min-h-[calc(100vh-112px)] px-6 text-left;
+}
+
+.hero__title-wrapper {
+  @apply mb-8;
+}
+
+.hero__title-main {
+  @apply font-bold text-[#6ab4ff] text-[40px] leading-[normal] mb-0 drop-shadow-md;
+  font-family: 'Lexend_Mega', sans-serif;
+}
+
+.hero__title-by-row {
+  @apply flex items-baseline gap-3 mt-1;
+}
+
+.hero__title-by {
+  @apply font-bold text-[54px] text-white drop-shadow-md;
+  font-family: 'Goldman', sans-serif;
+}
+
+.hero__title-sentinel {
+  @apply text-[80px] text-white leading-tight drop-shadow-md;
+  font-family: 'Black Ops One', sans-serif;
+}
+
+.hero__description {
+  @apply text-[#b6b3b3] text-[13px] mb-14 tracking-wide;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.hero__search-wrapper {
+  @apply w-full max-w-2xl;
+}
+
+.hero__search-form {
+  @apply flex items-center bg-white rounded-2xl px-5 py-2 gap-3 shadow-xl transition-all;
+}
+
+.hero__search-form--error {
+  @apply ring-2 ring-red-400;
+}
+
+.hero__search-input {
+  @apply flex-1 bg-transparent text-gray-700 placeholder-gray-400 text-lg outline-none py-3;
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+}
+
+.hero__search-btn {
+  @apply bg-[#1542e4] hover:bg-[#1a4ff0] active:bg-[#1238cc] text-white font-semibold text-base px-8 py-3 rounded-xl transition-colors whitespace-nowrap shadow-md;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.hero__error-msg {
+  @apply mt-2 text-left text-red-600 text-sm px-2 flex items-center gap-1;
+  font-family: 'Noto Sans KR', sans-serif;
+}

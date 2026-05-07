@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Noto+Sans+KR:wght@400&family=Jersey+20&family=Goldman&family=Allerta+Stencil&family=Jacquarda+Bastarda+9&family=Abhaya+Libre:wght@800&family=Alkalami&family=Black+Ops+One&display=swap');
+
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+/* Design-system font helpers (used by SearchPage/Hero UI) */
+.sentinel-font-inter-noto {
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+}
+
+.sentinel-font-jersey {
+  font-family: 'Jersey 20', sans-serif;
+}
+
+.sentinel-font-goldman {
+  font-family: 'Goldman', sans-serif;
+}
+
+.sentinel-font-allerta {
+  font-family: 'Allerta Stencil', sans-serif;
+}
+
+.sentinel-font-jacquarda-noto {
+  font-family: 'Jacquarda Bastarda 9', 'Noto Sans KR', sans-serif;
+}
+
+.sentinel-font-allerta-noto {
+  font-family: 'Allerta Stencil', 'Noto Sans KR', sans-serif;
+}
+
+.sentinel-font-abhaya {
+  font-family: 'Abhaya Libre', 'Noto Sans KR', sans-serif;
+}
+
+.sentinel-font-alkalami {
+  font-family: 'Alkalami', 'Noto Sans KR', sans-serif;
+}
+
+.sentinel-font-logo {
+  font-family: 'Black Ops One', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(
+    45deg,
+    #C3DDED 0%,
+    #E1EEF6 50%,
+    #FFFFFF 100%
+  );
+}

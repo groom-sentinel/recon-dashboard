@@ -1,0 +1,8 @@
+.header {
+  @apply relative z-10 flex items-center justify-between pt-[90px] pl-[92px] px-6 py-8;
+}
+
+.header__logo {
+  @apply font-semibold text-[64px] text-[#35607b] tracking-wide no-underline hover:opacity-75 transition-opacity select-none;
+  font-family: 'Intel_One_Mono', sans-serif;
+}
