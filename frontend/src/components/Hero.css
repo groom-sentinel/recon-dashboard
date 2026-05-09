@@ -47,6 +47,11 @@
   font-family: 'Noto Sans KR', 'Inter', sans-serif;
 }
 
+.hero__search-message {
+  @apply flex-1 text-gray-600 text-base py-3;
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+}
+
 .hero__search-btn {
   @apply bg-[#1542e4] hover:bg-[#1a4ff0] active:bg-[#1238cc] text-white font-semibold text-base px-8 py-3 rounded-xl transition-colors whitespace-nowrap shadow-md;
   font-family: 'Noto Sans KR', sans-serif;

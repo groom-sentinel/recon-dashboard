@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Hero.css';
 
@@ -6,7 +6,7 @@ import './Hero.css';
 export default function Hero() {
   const navigate = useNavigate();
 
-  const handleSearch = (e) => {
+  const handleSearch = () => {
     navigate('/search');
   };
 
@@ -27,11 +27,9 @@ return (
           onSubmit={handleSearch}
           className={'hero__search-form'}
         >
-          <input
-            type="text"
-            placeholder="스캔시작을 누르시면 검색페이지로 이동합니다"
-            className="hero__search-input"
-          />
+          <p className="hero__search-message">
+            스캔시작을 누르시면 검색페이지로 이동합니다
+          </p>
           <button type="submit" className="hero__search-btn">
             스캔시작
           </button>
