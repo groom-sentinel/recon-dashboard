@@ -7,7 +7,7 @@ export default function Hero() {
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    navigate('/search');
+    navigate('/dashboard');
   };
 
 return (
@@ -28,7 +28,7 @@ return (
           className={'hero__search-form'}
         >
           <p className="hero__search-message">
-            스캔시작을 누르시면 검색페이지로 이동합니다
+            스캔시작을 누르시면 대시보드로 이동합니다
           </p>
           <button type="submit" className="hero__search-btn">
             스캔시작

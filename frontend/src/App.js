@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
-import SearchPage from './pages/SearchPage';
+import DashboardPage from './pages/DashboardPage';
 import './App.css';
 
 export default function App() {
@@ -21,8 +21,8 @@ export default function App() {
         <main className="flex-1 overflow-auto">
           <Routes>
             <Route path="/" element={<Hero />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
       </div>

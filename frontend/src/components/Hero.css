@@ -31,7 +31,7 @@
 }
 
 .hero__search-wrapper {
-  @apply w-full max-w-2xl;
+  @apply w-full;
 }
 
 .hero__search-form {
