@@ -1,7 +1,18 @@
 {
-  "assets":    [{ "id":1, "ip":"scanme.nmap.org", "name":"scanme" }],
-  "vulnerabilities": [
-    { "id":1, "asset_id":1, "name":"Port 22 open", "severity":"high" }
-  ],
-  "risks":     [{ "asset_id":1, "level":"danger" }]
-}
+        "target": target,
+        "ip": "45.33.32.156",
+        "ports": [
+            { "port": 22, "os": "Linux",  "service": "ssh",  "version": "OpenSSH 7.9" },
+            { "port": 80, "os": "Linux",  "service": "http", "version": "Apache/2.4.29" },
+        ],
+        "assets": [
+            { "id": 1, "ip": target, "name": target }
+        ],
+        "vulnerabilities": [
+            { "id": 1, "asset_id": 1, "name": "Port 22 open", "severity": "high" },
+            { "id": 2, "asset_id": 1, "name": "Port 80 open", "severity": "medium" },
+        ],
+        "risks": [
+            { "asset_id": 1, "level": "danger" }
+        ]
+    }

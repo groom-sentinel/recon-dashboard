@@ -126,13 +126,14 @@ export default function Frame2() {
         body: JSON.stringify({ target })
       });
       const data = await response.json();
-      setScanData(data);
       //const response = await fetch(`/api/scan?target=${encodeURIComponent(target)}`);
-      //if (!response.ok) {
-      //  throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) {
+        throw new Error(data.detail || '알 수 없는 오류가 발생했습니다.');
+    }
+      //throw new Error(`HTTP ${response.status}`);
       //}
       //const data = await response.json();
-      //setScanData(data);
+      setScanData(data);
     } catch (err) {
       console.error(err);
       setError('⚠ 스캔 중 오류가 발생했습니다.');
@@ -193,6 +194,7 @@ export default function Frame2() {
  }, [scanData]);
 
 
+ 
   return (
     <div
       style={{
@@ -305,6 +307,37 @@ export default function Frame2() {
                 boxSizing: 'border-box',
               }}
             >
+              {/* 1) 스캔 호스트 정보 & 포트 개수 */}
+              <div style={{ marginBottom:'16px' }}>
+                <strong>스캔 대상:</strong> {scanData.target} ({scanData.ip})<br/>
+                <strong>열린 포트 개수:</strong> {scanData.ports.length}
+              </div>
+
+              {/* 2) 포트 스캔 테이블 */}
+              <div style={{ marginBottom:'24px' }}>
+                <h3>포트 스캔 결과</h3>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                  <thead>
+                    <tr style={{ background:'#f3f4f6' }}>
+                      <th style={{ border:'1px solid #ddd', padding:'8px' }}>Port</th>
+                      <th style={{ border:'1px solid #ddd', padding:'8px' }}>OS</th>
+                      <th style={{ border:'1px solid #ddd', padding:'8px' }}>Service</th>
+                      <th style={{ border:'1px solid #ddd', padding:'8px' }}>Version</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scanData.ports.map((p, idx) => (
+                      <tr key={idx}>
+                        <td style={{ border:'1px solid #ddd', padding:'8px' }}>{p.port}</td>
+                        <td style={{ border:'1px solid #ddd', padding:'8px' }}>{p.os}</td>
+                        <td style={{ border:'1px solid #ddd', padding:'8px' }}>{p.service}</td>
+                        <td style={{ border:'1px solid #ddd', padding:'8px' }}>{p.version}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
                {/* 자산 수 막대그래프 */}
                 <h3>자산(Assets) 개수</h3>
                 <canvas ref={assetChartRef} />
@@ -342,4 +375,3 @@ export default function Frame2() {
     </div>
   );
 }
-
