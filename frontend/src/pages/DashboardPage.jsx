@@ -115,67 +115,79 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 위험도 분포 */}
-      <div style={{ marginBottom:'32px' }}>
-        <h3 style={{ margin:'0 0 16px', fontSize:18, fontWeight:600 }}>
-          위험도 분포
-        </h3>
-        <div style={{ width:'100%', height:250 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={riskPieData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={80}
-                label={(e) => `${e.name}: ${e.value}`}
-              >
-                {riskPieData.map((e,i) => (
-                  <Cell
-                    key={i}
-                    fill={
-                      e.name==='safe'    ? '#60a5fa' :
-                      e.name==='warning' ? '#facc15' :
-                      '#ef4444'
-                    }
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <div
+        style={{
+          display: 'flex',
+          gap: '32px',         // 차트 사이 간격
+          marginBottom: '32px' // 아래 여백
+        }}
+      >
+        {/* 1) 위험도 분포 */}
+        <div style={{ flex: 1 }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 600 }}>
+            위험도 분포
+          </h3>
+          <div style={{ width: '100%', height: 250 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={riskPieData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={80}
+                  label={e => `${e.name}: ${e.value}`}
+                >
+                  {riskPieData.map((e, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        e.name === 'safe'
+                          ? '#60a5fa'
+                         : e.name === 'warning'
+                          ? '#facc15'
+                          : '#ef4444'
+                      }
+                   />
+                  ))}
+               </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+         </div>
+       </div>
 
-      {/* 취약점 심각도 분포 */}
-      <div style={{ marginBottom:'32px' }}>
-        <h3 style={{ margin:'0 0 16px', fontSize:18, fontWeight:600 }}>
-          취약점 심각도 분포
-        </h3>
-        <div style={{ width:'100%', height:250 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={vulnPieData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={80}
-                label={(e) => `${e.name}: ${e.value}`}
-              >
-                {vulnPieData.map((e,i) => (
-                  <Cell
-                    key={i}
-                    fill={
-                      e.name==='low'    ? '#10b981' :
-                      e.name==='medium' ? '#f59e0b' :
-                      '#ef4444'
-                    }
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+        {/* 2) 취약점 심각도 분포 */}
+        <div style={{ flex: 1 }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 600 }}>
+            취약점 심각도 분포  
+          </h3>
+          <div style={{ width: '100%', height: 250 }}>
+            <ResponsiveContainer width="100%" height="100%">
+             <PieChart>
+                <Pie
+                  data={vulnPieData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={80}
+                  label={e => `${e.name}: ${e.value}`}
+               >
+                  {vulnPieData.map((e, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        e.name === 'low'
+                          ? '#10b981'
+                          : e.name === 'medium'
+                         ? '#f59e0b'
+                         : '#ef4444'
+                     }
+                   />
+                 ))}
+                </Pie>
+               <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
