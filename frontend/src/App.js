@@ -15,8 +15,8 @@ export default function App() {
           background:
             'linear-gradient(45deg, #C3DDED 0%, #E1EEF6 50%, #FFFFFF 100%)'
         }}
-      >
-        <div className="relative z-10 min-h-screen flex flex-col"></div>
+      />
+      <div className="relative z-10 min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 overflow-auto">
           <Routes>

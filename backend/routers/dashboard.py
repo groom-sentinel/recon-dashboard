@@ -3,75 +3,92 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List
 
+from sqlalchemy import text
+
+from db import engine
+
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
-# Pydantic 모델
+
 class AssetSummary(BaseModel):
-    name: str
+    name:        str
     ports_count: int
 
-class SummaryResponse(BaseModel):
-    total_assets: int
-    risky_assets: int
-    critical_cves: int
-    assets: List[AssetSummary]
-    vuln_low: int
-    vuln_medium: int
-    vuln_high: int
 
-# 예시용 메모리 자산 데이터
-# 실제 서비스라면 DB나 캐시에 저장된 값을 여기에 꺼내 쓰세요.
-_FAKE_ASSETS = [
-    {
-        "name": "scanme.nmap.org",
-        "ports_count": 2,
-        "risk_level": "danger",
-        "cves": [
-            {"id": "CVE-2023-1234", "severity": "critical"},
-            {"id": "CVE-2023-5678", "severity": "medium"},
-        ]
-    },
-    {
-        "name": "example.com",
-        "ports_count": 5,
-        "risk_level": "warning",
-        "cves": [
-            {"id": "CVE-2023-0001", "severity": "low"},
-        ]
-    },
-    # … 추가 자산 …
-]
+class SummaryResponse(BaseModel):
+    total_assets:  int
+    risky_assets:  int
+    critical_cves: int
+    assets:        List[AssetSummary]
+    vuln_low:      int
+    vuln_medium:   int
+    vuln_high:     int
+
 
 @router.get("/summary", response_model=SummaryResponse)
 async def get_summary():
-    # 1) 요약 통계 계산
-    total_assets  = len(_FAKE_ASSETS)
-    risky_assets  = sum(1 for a in _FAKE_ASSETS if a["risk_level"] != "safe")
-    critical_cves = sum(
-        1
-        for a in _FAKE_ASSETS
-        for c in a["cves"]
-        if c.get("severity") == "critical"
-    )
+    with engine.connect() as conn:
+        total_assets = conn.execute(
+            text("SELECT COUNT(*) FROM assets")
+        ).scalar() or 0
 
-    # 2) assets 리스트 포맷
+        risky_assets = conn.execute(
+            text("""
+                SELECT COUNT(DISTINCT asset_id)
+                FROM vulnerabilities
+                WHERE severity IN ('critical', 'high', 'medium')
+                  AND no_vuln_found = 0
+            """)
+        ).scalar() or 0
+
+        critical_cves = conn.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM vulnerabilities
+                WHERE severity = 'critical' AND no_vuln_found = 0
+            """)
+        ).scalar() or 0
+
+        vuln_low = conn.execute(
+            text("""
+                SELECT COUNT(*) FROM vulnerabilities
+                WHERE severity = 'low' AND no_vuln_found = 0
+            """)
+        ).scalar() or 0
+
+        vuln_medium = conn.execute(
+            text("""
+                SELECT COUNT(*) FROM vulnerabilities
+                WHERE severity = 'medium' AND no_vuln_found = 0
+            """)
+        ).scalar() or 0
+
+        vuln_high = conn.execute(
+            text("""
+                SELECT COUNT(*) FROM vulnerabilities
+                WHERE severity IN ('high', 'critical') AND no_vuln_found = 0
+            """)
+        ).scalar() or 0
+
+        asset_rows = conn.execute(
+            text("""
+                SELECT a.domain, a.asset_key, COUNT(s.scan_id) AS ports_count
+                FROM assets a
+                LEFT JOIN service_scans s ON s.asset_id = a.asset_id
+                GROUP BY a.asset_id, a.domain, a.asset_key
+                ORDER BY a.ingested_at DESC
+                LIMIT 100
+            """)
+        ).fetchall()
+
     assets_list = [
-        AssetSummary(name=a["name"], ports_count=a["ports_count"])
-        for a in _FAKE_ASSETS
+        AssetSummary(
+            name=row[0] or row[1],
+            ports_count=row[2],
+        )
+        for row in asset_rows
     ]
 
-    # 3) 취약점 심각도 별 카운트
-    vuln_low    = sum(
-        1 for a in _FAKE_ASSETS for c in a["cves"] if c.get("severity") == "low"
-    )
-    vuln_medium = sum(
-        1 for a in _FAKE_ASSETS for c in a["cves"] if c.get("severity") == "medium"
-    )
-    vuln_high   = sum(
-        1 for a in _FAKE_ASSETS for c in a["cves"] if c.get("severity") == "high"
-    )
-
-    # 4) 반환
     return SummaryResponse(
         total_assets=total_assets,
         risky_assets=risky_assets,
