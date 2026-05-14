@@ -23,6 +23,12 @@ class SummaryResponse(BaseModel):
     vuln_low:      int
     vuln_medium:   int
     vuln_high:     int
+    vuln_critical: int
+
+
+class PortExposureItem(BaseModel):
+    port: int
+    assets: int
 
 
 @router.get("/summary", response_model=SummaryResponse)
@@ -32,11 +38,12 @@ async def get_summary():
             text("SELECT COUNT(*) FROM assets")
         ).scalar() or 0
 
+        # PDF: 위험 자산 = critical + high 만 DISTINCT
         risky_assets = conn.execute(
             text("""
                 SELECT COUNT(DISTINCT asset_id)
                 FROM vulnerabilities
-                WHERE severity IN ('critical', 'high', 'medium')
+                WHERE severity IN ('critical', 'high')
                   AND no_vuln_found = 0
             """)
         ).scalar() or 0
@@ -66,7 +73,14 @@ async def get_summary():
         vuln_high = conn.execute(
             text("""
                 SELECT COUNT(*) FROM vulnerabilities
-                WHERE severity IN ('high', 'critical') AND no_vuln_found = 0
+                WHERE severity = 'high' AND no_vuln_found = 0
+            """)
+        ).scalar() or 0
+
+        vuln_critical = conn.execute(
+            text("""
+                SELECT COUNT(*) FROM vulnerabilities
+                WHERE severity = 'critical' AND no_vuln_found = 0
             """)
         ).scalar() or 0
 
@@ -97,4 +111,22 @@ async def get_summary():
         vuln_low=vuln_low,
         vuln_medium=vuln_medium,
         vuln_high=vuln_high,
+        vuln_critical=vuln_critical,
     )
+
+
+@router.get("/port-exposure", response_model=List[PortExposureItem])
+async def port_exposure(limit: int = 20):
+    lim = max(1, min(limit, 100))
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("""
+                SELECT port, COUNT(DISTINCT asset_id) AS asset_cnt
+                FROM service_scans
+                GROUP BY port
+                ORDER BY asset_cnt DESC, port ASC
+                LIMIT :lim
+            """),
+            {"lim": lim},
+        ).fetchall()
+    return [PortExposureItem(port=int(r[0]), assets=int(r[1])) for r in rows]
