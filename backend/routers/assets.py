@@ -12,6 +12,24 @@ router = APIRouter(prefix="/assets", tags=["assets"])
 
 _SEV_SCORE = {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1, "unknown": 0}
 
+_DB_PORTS    = {3306, 5432, 1521, 27017, 6379, 1433}
+_ADMIN_PORTS = {8080, 8443, 9090, 8888, 8161, 4848, 10000}
+_REMOTE_PORTS = {22, 23, 3389, 5900}
+_WEB_PORTS   = {80, 443}
+
+
+def _build_category(open_ports: List[int]) -> str:
+    labels = []
+    if any(p in _ADMIN_PORTS for p in open_ports):
+        labels.append("내부 관리자 포트 노출")
+    if any(p in _DB_PORTS for p in open_ports):
+        labels.append("DB 외부 노출")
+    if any(p in _REMOTE_PORTS for p in open_ports):
+        labels.append("원격 접속 노출")
+    if not labels and any(p in _WEB_PORTS for p in open_ports):
+        labels.append("웹 서비스")
+    return "·".join(labels) if labels else "기타"
+
 def _risk_level(max_score: int) -> str:
     if max_score >= 4:
         return "danger"
@@ -40,6 +58,86 @@ class AssetDetail(BaseModel):
     risk_level:      str
     cves:            List[CVEItem]
     recommendations: List[str]
+
+
+class AssetCardOut(BaseModel):
+    id:              int
+    ip:              Optional[str]
+    name:            Optional[str]
+    risk_level:      str
+    category:        str
+    tech_stack:      List[str]
+    recommendations: List[str]
+    open_ports:      List[int]
+    scanned_at:      Optional[str]
+
+
+@router.get("/recent", response_model=List[AssetCardOut])
+async def recent_assets(limit: int = Query(3, ge=1, le=20)):
+    """최근 스캔된 자산 카드 — 대시보드 상단 노출용."""
+    with engine.connect() as conn:
+        asset_rows = conn.execute(
+            text("""
+                SELECT asset_id, domain, ip, created_at
+                FROM assets
+                ORDER BY asset_id DESC
+                LIMIT :limit
+            """),
+            {"limit": limit},
+        ).fetchall()
+
+        results = []
+        for asset_id, domain, ip, created_at in asset_rows:
+            scan_rows = conn.execute(
+                text("""
+                    SELECT port, service, product, version
+                    FROM service_scans
+                    WHERE asset_id = :id
+                """),
+                {"id": asset_id},
+            ).fetchall()
+
+            vuln_rows = conn.execute(
+                text("""
+                    SELECT name, severity, cve_ids_json
+                    FROM vulnerabilities
+                    WHERE asset_id = :id AND no_vuln_found = 0
+                """),
+                {"id": asset_id},
+            ).fetchall()
+
+            # 기술 스택: "product version" 중복 제거
+            tech_stack: List[str] = []
+            seen_tech: set = set()
+            for _, _, product, version in scan_rows:
+                label = " ".join(filter(None, [product, version])).strip()
+                if label and label not in seen_tech:
+                    tech_stack.append(label)
+                    seen_tech.add(label)
+
+            open_ports = [r[0] for r in scan_rows]
+            category = _build_category(open_ports)
+            max_score = max((_SEV_SCORE.get(v[1], 0) for v in vuln_rows), default=0)
+            recs = _build_recommendations(
+                [(r[0], r[1]) for r in scan_rows],
+                vuln_rows,
+            )
+
+            results.append(
+                AssetCardOut(
+                    id=asset_id,
+                    ip=ip,
+                    name=domain,
+                    risk_level=_risk_level(max_score),
+                    category=category,
+                    tech_stack=tech_stack,
+                    recommendations=recs,
+                    open_ports=open_ports,
+                    scanned_at=str(created_at) if created_at else None,
+                )
+            )
+
+        return results
 
 
 @router.get("", response_model=List[AssetListItem])

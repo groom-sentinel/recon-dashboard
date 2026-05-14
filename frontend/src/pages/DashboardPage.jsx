@@ -14,7 +14,8 @@ import {
   LineChart,
   Line,
 } from 'recharts'
-import { loadDashboardData } from '../api/dashboard'
+import { loadDashboardData, loadRecentAssets } from '../api/dashboard'
+import AssetCard from '../components/AssetCard'
 
 const PDF_HIGH_RISK = new Set([22, 23, 3389, 445, 1433])
 
@@ -138,12 +139,18 @@ export default function DashboardPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [recentAssets, setRecentAssets] = useState([])
 
   useEffect(() => {
     ;(async () => {
       setLoading(true)
       try {
-        setData(await loadDashboardData())
+        const [dashData, cards] = await Promise.all([
+          loadDashboardData(),
+          loadRecentAssets(3),
+        ])
+        setData(dashData)
+        setRecentAssets(cards)
       } catch (e) {
         setError(e.message)
       } finally {
@@ -226,11 +233,27 @@ export default function DashboardPage() {
       }}
     >
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>
-        대시보드 (팀 스펙)
+        대시보드
       </h1>
-      <p style={{ margin: '0 0 8px', color: '#64748b', fontSize: 14 }}>
-        DB 필드 집계 → PDF 시각화 형태
-      </p>
+
+      {/* 0. 최근 스캔 자산 카드 */}
+      <SectionTitle>최근 스캔 자산</SectionTitle>
+      {recentAssets.length === 0 ? (
+        <p style={{ color: '#94a3b8', fontSize: 13 }}>스캔 데이터 없음 — 파이프라인을 실행하면 카드가 표시됩니다.</p>
+      ) : (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: 16,
+            marginBottom: 12,
+          }}
+        >
+          {recentAssets.map((asset) => (
+            <AssetCard key={asset.id} asset={asset} />
+          ))}
+        </div>
+      )}
 
       {/* 1. KPI */}
       <SectionTitle>1. 전체 현황 요약 (KPI)</SectionTitle>

@@ -1,5 +1,15 @@
 import { apiUrl } from './base'
 
+/**
+ * 최근 스캔 자산 카드 N건 로드.
+ * @param {number} limit
+ */
+export async function loadRecentAssets(limit = 3) {
+  const res = await fetch(apiUrl(`/assets/recent?limit=${limit}`))
+  if (!res.ok) throw new Error(`자산 카드 로드 실패 (${res.status})`)
+  return res.json()
+}
+
 async function parseJsonError(res) {
   try {
     const body = await res.json()
